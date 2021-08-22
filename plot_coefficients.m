@@ -1,5 +1,5 @@
 %% Load aerodynamic data from Missile DATCOM output file (for006.dat)
-aero = datcomimport("for006_new.dat");
+aero = datcomimport("for006.dat");
 
 %% Plot data
 alpha = aero{1}.alpha;
