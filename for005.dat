@@ -1,0 +1,82 @@
+CASEID Javelin_Setup
+$FLTCON NALPHA=19.0,
+        ALPHA=-27.0, -24.0, -21.0, -18.0, -15.0, -12.0, -9.0, -6.0, -3.0,
+               0.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0,
+        BETA=0.0,
+        PHI=0.0,
+        NMACH=6.0,
+        MACH=0.1, 0.2, 0.3, 0.4, 0.5, 0.6,
+        ALT=0.0, 0.0, 0.0, 0.0, 0.0, 0.0,$
+
+$REFQ
+        SREF=1.266768698E-02,
+        LREF=0.05,
+        LATREF=0.268,
+        XCG=0.446,
+        BLAYER=TURB,$
+
+$AXIBOD
+        TNOSE=OGIVE,
+        LNOSE=0.0635,
+        DNOSE=0.127,
+        LCENTR=1.0465,
+        DCENTR=0.127,$
+
+$FINSET1
+        SECTYP=NACA,
+        SSPAN=0.0, 0.038, 0.134,
+        CHORD=0.05, 0.05, 0.03,
+        XLE=0.697, 0.697, 0.717,
+        NPANEL=8.0,
+        PHIF=0.0, 45.0, 90.0, 135.0, 180.0, 225.0, 270.0, 315.0,$
+
+$FINSET2
+        SECTYP=NACA,
+        SSPAN=0.0, 0.1,
+        CHORD=0.06, 0.06,
+        CFOC=1.0, 1.0,
+        XLE=1.011, 1.071,
+        NPANEL=4.0,
+        PHIF=135.0, 225.0, 315.0, 45.0,$
+
+$DEFLCT DELTA2=0.0, 0.0, 0.0, 0.0,$
+
+NACA-1-4-0015
+NACA-2-4-0015
+
+DIM M
+DERIV RAD
+SAVE
+PLOT
+DAMP
+NEXT CASE
+
+CASEID Elevator deflection 5deg
+$DEFLCT DELTA2=-5.0, 5.0, 5.0, -5.0$
+SAVE
+NEXT CASE
+
+CASEID Elevator deflection 10deg
+$DEFLCT DELTA2=-10.0, 10.0, 10.0, -10.0$
+SAVE
+NEXT CASE
+
+CASEID Rudder deflection 5deg
+$DEFLCT DELTA2=-5.0, -5.0, 5.0, 5.0$
+SAVE
+NEXT CASE
+
+CASEID Rudder deflection 10deg
+$DEFLCT DELTA2=-10.0, -10.0, 10.0, 10.0$
+SAVE
+NEXT CASE
+
+CASEID Aileron deflection 5deg
+$DEFLCT DELTA2=-5.0, -5.0, -5.0, -5.0$
+SAVE
+NEXT CASE
+
+CASEID Aileron deflection 10deg
+$DEFLCT DELTA2=-10.0, -10.0, -10.0, -10.0$
+SAVE
+NEXT CASE
