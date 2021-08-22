@@ -86,10 +86,16 @@ function res = az_step_response(params, Kh, Kaz, sp, t_trigger, t_end)
     res.RiseTime = info.RiseTime;
     res.SettlingTime = (info.SettlingTime - t_trigger);
     res.Overshoot = info.Overshoot;
-    res.damp = fzero(@(x) (exp(-pi*x/sqrt(1-x^2)) - info.Overshoot/100), 0.5);
-    
-    [~, locs] = findpeaks(ys, ts);
-    res.natural_freq = 1/((locs(2) - locs(1)) * sqrt(1-res.damp^2));
+    if info.Overshoot == 0
+        res.damp = 1.0;
+        res.natural_freq = 0;
+    elseif info.Overshoot > 100
+        res.damp = NaN;
+        res.natural_freq = NaN;
+    else
+        res.damp = fzero(@(x) (exp(-pi*x/sqrt(1-x^2)) - info.Overshoot/100), 0.5);
+        res.natural_freq = (pi - acos(res.damp)) / (2*pi*info.RiseTime);
+    end
     
     % Print relevant information
     fprintf("Rise time: %g s\n", res.RiseTime);

@@ -72,25 +72,25 @@ Kaz = [-0.00842833585481730,-0.0731870428563336,0.0402739030601024,0,-0.07207686
 fprintf("Kaz tvc: [%g, %g, %g]\n", Kaz(1:3));
 fprintf("Kaz ae: [%g, %g, %g]\n", Kaz(4:6));
 
-fprintf("Miss distance target at 150m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 150, 0/3.6).miss_distance);
-fprintf("Miss distance target at 150m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 150, 40/3.6).miss_distance);
-fprintf("Miss distance target at 250m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 250, 0/3.6).miss_distance);
-fprintf("Miss distance target at 250m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 250, 40/3.6).miss_distance);
-fprintf("Miss distance target at 500m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 500, 0/3.6).miss_distance);
-fprintf("Miss distance target at 500m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 500, 40/3.6).miss_distance);
-fprintf("Miss distance target at 750m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 750, 0/3.6).miss_distance);
-fprintf("Miss distance target at 750m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 750, 40/3.6).miss_distance);
-fprintf("Miss distance target at 1000m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 1000, 0/3.6).miss_distance);
-fprintf("Miss distance target at 1000m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 1000, 40/3.6).miss_distance);
-fprintf("Miss distance target at 1500m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 1500, 0/3.6).miss_distance);
-fprintf("Miss distance target at 1500m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 1500, 40/3.6).miss_distance);
-fprintf("Miss distance target at 2000m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 2000, 0/3.6).miss_distance);
-fprintf("Miss distance target at 2000m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 2000, 40/3.6).miss_distance);
-fprintf("Miss distance target at 2500m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 2500, 0/3.6).miss_distance);
-fprintf("Miss distance target at 2500m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 2500, 40/3.6).miss_distance);
+% fprintf("Miss distance target at 150m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 150, 0/3.6).miss_distance);
+% fprintf("Miss distance target at 150m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 150, 40/3.6).miss_distance);
+% fprintf("Miss distance target at 250m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 250, 0/3.6).miss_distance);
+% fprintf("Miss distance target at 250m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 250, 40/3.6).miss_distance);
+% fprintf("Miss distance target at 500m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 500, 0/3.6).miss_distance);
+% fprintf("Miss distance target at 500m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 500, 40/3.6).miss_distance);
+% fprintf("Miss distance target at 750m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 750, 0/3.6).miss_distance);
+% fprintf("Miss distance target at 750m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 750, 40/3.6).miss_distance);
+% fprintf("Miss distance target at 1000m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 1000, 0/3.6).miss_distance);
+% fprintf("Miss distance target at 1000m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 1000, 40/3.6).miss_distance);
+% fprintf("Miss distance target at 1500m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 1500, 0/3.6).miss_distance);
+% fprintf("Miss distance target at 1500m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 1500, 40/3.6).miss_distance);
+% fprintf("Miss distance target at 2000m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 2000, 0/3.6).miss_distance);
+% fprintf("Miss distance target at 2000m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 2000, 40/3.6).miss_distance);
+% fprintf("Miss distance target at 2500m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 2500, 0/3.6).miss_distance);
+% fprintf("Miss distance target at 2500m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 2500, 40/3.6).miss_distance);
 
 %res = simulation(params, PID, Kaz, 1500, 0/3.6);
-res = az_step_response(params, PID, Kaz, 10, 8.0, 9.0);
+res = az_step_response(params, PID, Kaz, 50, 8, 10.0);
 
 figure;
 plot(res.y(:,1), -res.y(:,3));

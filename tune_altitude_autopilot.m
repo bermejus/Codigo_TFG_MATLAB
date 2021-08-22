@@ -58,12 +58,21 @@ function res = tune_altitude_autopilot(params, K, sp, print_snd_order_info)
     res.RiseTime = info.RiseTime;
     res.SettlingTime = info.SettlingTime;
     res.Overshoot = info.Overshoot;
-    res.damp = fzero(@(x) (exp(-pi*x/sqrt(1-x^2)) - info.Overshoot/100), 0.5);
+    if info.Overshoot == 0
+        res.damp = 1.0;
+        res.natural_freq = 0;
+    elseif info.Overshoot > 100
+        res.damp = NaN;
+        res.natural_freq = NaN;
+    else
+        res.damp = fzero(@(x) (exp(-pi*x/sqrt(1-x^2)) - info.Overshoot/100), 0.5);
+        res.natural_freq = (pi - acos(res.damp)) / (2*pi*info.RiseTime);
+    end
     
     if isnan(info.RiseTime) || isnan(info.SettlingTime) || isnan(info.Overshoot)
         res.cost = res.cost + 30;
     else
-        res.cost = res.cost + info.RiseTime + info.SettlingTime + abs(info.Overshoot - 4.598791);
+        res.cost = res.cost + info.RiseTime + info.SettlingTime + 100 * abs(res.damp - 0.7);
     end
     
     % Print relevant information
@@ -72,5 +81,6 @@ function res = tune_altitude_autopilot(params, K, sp, print_snd_order_info)
         fprintf("Settling time: %g s\n", res.SettlingTime);
         fprintf("Overshoot: %g %c\n", res.Overshoot, "%");
         fprintf("Damping: %g\n", res.damp);
+        fprintf("Natural frequency: %g Hz\n", res.natural_freq);
     end
 end
