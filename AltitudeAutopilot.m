@@ -1,3 +1,9 @@
+%% Clase que implementa el autopiloto en altura.
+% El diseño óptimo se ha fijado en control proporcional el empuje
+% vectorizado y control proporcional-integrador-derivativo para las aletas.
+% Permite limitar las deflexiones máximas tanto positivas como negativas
+% mediante las variables 'u_max' y 'u_min', respectivamente.
+
 classdef AltitudeAutopilot < handle
     properties
         K
@@ -19,11 +25,17 @@ classdef AltitudeAutopilot < handle
         
         function u_cmd = output(obj, sp, h_fb, dt)
             obj.error = sp - h_fb;
+            
+            % Término donde se acumula y calcula el valor de la integral
+            % mediante la regla del trapecio.
             obj.int_accum = obj.int_accum + 0.5 * (obj.error + obj.prev_error) * dt;
-            u1 = obj.K(1) * obj.error;
-            u2 = obj.K(2) * obj.error + obj.K(3) * obj.int_accum + obj.K(4) * (obj.error - obj.prev_error)/dt;
+            
+            u_tvc = obj.K(1) * obj.error;
+            u_ae = obj.K(2) * obj.error + obj.K(3) * obj.int_accum + obj.K(4) * (obj.error - obj.prev_error)/dt;
             obj.prev_error = obj.error;
-            u_cmd = max(min([u1, u2], obj.u_max), obj.u_min);
+            
+            % Saturación de los comandos según valores máximos y mínimos.
+            u_cmd = max(min([u_tvc, u_ae], obj.u_max), obj.u_min);
         end
     end
 end

@@ -1,4 +1,6 @@
-%% Bilinear interpolation alternative to buitin one (faster code)
+% Función que realiza una interpolación bilineal con los datos de entrada.
+% Más rápida que la que implementa Matlab por defecto, velocidad de
+% ejecución necesaria para ejecutar la simulación en un tiempo razonable.
 function z = bilinear(xs, ys, zs, x, y)
     idx = 1; idy = 1;
     for i=2:length(xs)

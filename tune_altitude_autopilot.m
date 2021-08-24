@@ -1,29 +1,48 @@
+%% Función que calcula la respuesta del autopiloto en altura.
+% *** Argumentos de entrada:
+% params: Parámetros del Javelin.
+% K: Ganancias calculadas para el autopiloto en altura.
+% sp: Altitud deseada (setpoint).
+% print_snd_order_info: si el valor es 'true', muestra en consola los parámetros de sistema de segundo orden.
+%
+% *** Devuelve una estructura con los siguientes contenidos:
+% t: Vector que contiene los instantes de tiempo.
+% y: Vector que contiene cada estado del msisil simulado en su correspondiente instante de tiempo.
+% cost: Valor de la función de coste asociada a la simulación.
+% RiseTime: Tiempo de subida ante la entrada escalón.
+% SettlingTime: Tiempo de establecimiento ante la entrada escalón.
+% Overshoot: Sobreimpulso ante la entrada escalón.
+% damp: Amortiguamiento del autopiloto ante la entrada escalón.
+% natural_freq: Frecuencia natural del autopiloto ante la entrada escalón.
 function res = tune_altitude_autopilot(params, K, sp, print_snd_order_info)
-    %% Initial conditions
+    %% Condiciones iniciales
     y = zeros(17,1);
-    y(1:3) = [0; 0; -1];
-    y(4:6) = [13; 0; 0];
-    y(7:9) = [0; 0; 0];
-    y(10:13) = quat(deg2rad(18), [0; 1; 0]);
+    y(1:3) = [0; 0; -1]; % Posición en ejes Tierra
+    y(4:6) = [13; 0; 0]; % Velocidad en ejes cuerpo
+    y(7:9) = [0; 0; 0]; % Velocidad angular
+    y(10:13) = quat(deg2rad(18), [0; 1; 0]); % 18 grados de cabeceo
     
+    %% Preparación de la simulación
     if ~exist("print_snd_order_info", "var")
         print_snd_order_info = false;
     end
     
     tspan = [0, 20];
     t = tspan(1);
-    dt = 0.01;
+    dt = 0.01; % Paso de tiempo, frecuencia de actualización 100Hz
     
+    %% Inicializar variables de salida
     res.t = t;
     res.y = zeros(1,17);
     res.y(:) = y';
     res.cost = 0;
     
-    %% Pitch rate autopilot instances
+    %% Autopiloto en altura
     pid = AltitudeAutopilot(K, deg2rad(20) * [-1,-1], deg2rad(20) * [1,1]);
     
+    %% Comienzo de la simulación
     while t < tspan(2)
-        %% PID altitude autopilot
+        %% Control de altura a 150 metros
         u_cmd = pid.output(1.0, y(3)/sp, dt);
         if t < 2.0
             params.vanes_cmd(1) = u_cmd(1);
@@ -32,29 +51,33 @@ function res = tune_altitude_autopilot(params, K, sp, print_snd_order_info)
         end
         params.deltas_cmd(1) = u_cmd(2);
         
-        %% Run simulation for one timestep
+        %% Ejecutar la simulación para un paso de tiempo
         [ts, ys] = ode45(@(t,y) dynamics(t,y,params), [t, t+dt], y);
         t = ts(end);
         y = ys(end,:)';
         
-        %% If missile loses control, stop the simulation and penalize cost value
-        if y(3) > 0 || norm(y(7:9)) > 200.0
+        %% Si el misil pierde el control, finalizar la simulación y penalizar el evento
+        if y(3) > 0 || norm(y(7:9)) > 100.0
              res.cost = res.cost + 30;
              break;
         end
         
-        %% Save current state in results array
+        %% Guardar el estado actual en los vectores de salida
         res.t = [res.t; t];
         res.y = [res.y; y'];
         
+        % Actualizar valor de la función de coste para optimizar el
+        % rendimiento del autopiloto en altura, penalizar la desviación del
+        % setpoint.
         res.cost = res.cost + 10*pid.error^2*dt;
     end
     
-    %% Calculate rise time, setting time and overshoot (we want to minimize the sum of them)
+    %% Cálculo de varios parámetros para entrada escalón, asumiendo que se aproxima a un sistema de segundo orden
     ts = res.t;
     ys = -res.y(:,3);
-    
+    % Importante: necesario instalar el paquete Signal Processing Toolbox.
     info = stepinfo(ys, ts, -sp);
+    
     res.RiseTime = info.RiseTime;
     res.SettlingTime = info.SettlingTime;
     res.Overshoot = info.Overshoot;
@@ -69,18 +92,22 @@ function res = tune_altitude_autopilot(params, K, sp, print_snd_order_info)
         res.natural_freq = (pi - acos(res.damp)) / (2*pi*info.RiseTime);
     end
     
+    % Minimizar tiempo de subida, establecimiento y buscar coeficiente de
+    % amortiguamiento lo más cercano a 0.7 posible. Si el sistema no se
+    % corresponde con uno de segundo orden, penalizar aún más el valor de
+    % la función de coste.
     if isnan(info.RiseTime) || isnan(info.SettlingTime) || isnan(info.Overshoot)
         res.cost = res.cost + 30;
     else
         res.cost = res.cost + info.RiseTime + info.SettlingTime + 100 * abs(res.damp - 0.7);
     end
     
-    % Print relevant information
+    % Mostrar información calculada en consola
     if print_snd_order_info
-        fprintf("Rise time: %g s\n", res.RiseTime);
-        fprintf("Settling time: %g s\n", res.SettlingTime);
-        fprintf("Overshoot: %g %c\n", res.Overshoot, "%");
-        fprintf("Damping: %g\n", res.damp);
-        fprintf("Natural frequency: %g Hz\n", res.natural_freq);
+        fprintf("Tiempo de subida: %g s\n", res.RiseTime);
+        fprintf("Tiempo de establecimiento: %g s\n", res.SettlingTime);
+        fprintf("Sobreimpulso: %g %c\n", res.Overshoot, "%");
+        fprintf("Amortiguamiento: %g\n", res.damp);
+        fprintf("Frecuencia natural: %g Hz\n", res.natural_freq);
     end
 end

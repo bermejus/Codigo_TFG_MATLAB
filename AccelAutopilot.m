@@ -1,3 +1,9 @@
+%% Clase que implementa el autopiloto en aceleración.
+% Se ha fijado el mismo diseño para el control vectorizado y control con
+% aletas, siendo un controlador proporcional-integrador (PI) en aceleración
+% con realimentación proporcional de velocidad angular de cabeceo 'q' para
+% aumentar el amortiguamiento del conjunto.
+
 classdef AccelAutopilot < handle
     properties
         K
@@ -15,6 +21,8 @@ classdef AccelAutopilot < handle
             obj.u_max = u_max;
         end
         
+        % 'fz_fb' es la aceleración en ejes cuerpo realimentada, y 'q_fb'
+        % es la velocidad angular de cabeceo realimentada.
         function u_cmd = output(obj, sp, fz_fb, q_fb, dt)
             obj.error = sp - fz_fb;
             obj.int_accum = obj.int_accum + obj.error * dt;

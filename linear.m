@@ -1,3 +1,6 @@
+% Función que realiza una interpolación lineal con los datos de entrada.
+% Más rápida que la que implementa Matlab por defecto, velocidad de
+% ejecución necesaria para ejecutar la simulación en un tiempo razonable.
 function y = linear(xs, ys, x)
     idx = 1;
     for i=2:length(xs)

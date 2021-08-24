@@ -1,3 +1,5 @@
+% Función que calcula los ángulos de Euler según el cuaternión, o array de
+% cuaterniones que se haya dado como entrada.
 function res = euler_angles(q)
     if size(q,1) == 1 || size(q,2) == 1
         roll = atan2(2*(q(1)*q(4) + q(2)*q(3)), 1 - 2*(q(3)^2 + q(4)^2));
