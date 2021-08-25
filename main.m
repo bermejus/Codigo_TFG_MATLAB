@@ -8,8 +8,8 @@ params = parameters();
 % altura (PID), cuya respuesta es la buscada.
 
 sp = -150.0; % setpoint (en metros, negativo por el sistema de coordenadas)
-ub = [0.01, 5.0, 0.1, 5.0]; % Límites superiores para ganancias
-lb = [0.0, 2.0, 0.01, 3.0]; % Límites inferiores para ganancias
+ub = [0.0, 4.0, 0.1, 4.0]; % Límites superiores para ganancias
+lb = [-0.01, 0.0, 0.0, 0.0]; % Límites inferiores para ganancias
 
 % Ejecutar el algoritmo en paralelo para utilizar todos los núcleos del
 % procesador, necesario el paquete Parallel Computing Toolbox.
@@ -18,7 +18,7 @@ options = optimoptions('surrogateopt','UseParallel',true);
 % Descomentar la línea siguiente para ejecutar el algoritmo, y comentar la
 % posterior para evitar que se sobrescriban las ganancias.
 %PID = surrogateopt(@(x) tune_altitude_autopilot(params, x, sp).cost, lb, ub, options);
-PID = [0.00749222349359639,3.71135089747078,0.0357381908067924,3.35647278501200]; % Ganancias elegidas
+PID = [-0.00915369751880443,3.42525929980113,0.0278826828709323,3.36996825032110];
 
 % Mostrar las ganancias en la consola.
 fprintf("TVC -> [Kp: %g], Fins -> [Kp: %g, Ki: %g, Kd: %g]\n", PID);
@@ -92,7 +92,7 @@ options = optimoptions('surrogateopt','UseParallel',true,'MaxFunctionEvaluations
 % Descomentar la línea siguiente para ejecutar el optimizador, y comentar
 % la posterior para evitar sobrescribir la solución.
 %Kaz = surrogateopt(@(x) guidance_optimizer(params, PID, x), lb, ub, options);
-Kaz = [-0.00842833585481730,-0.0731870428563336,0.0402739030601024,0,-0.0720768623041320,0.0397369040927447];
+Kaz = [-0.00900000000000,-0.128081303795713,0.0590475753833444,0,-0.0812543572015855,0.0403469532437463];
 
 % Mostrar las ganancias en la consola.
 fprintf("Kaz tvc: [%g, %g, %g]\n", Kaz(1:3));
@@ -120,12 +120,13 @@ fprintf("Error de alcance para objetivo a 2500m, 40 km/h: %g m\n", simulation(pa
 %% Simulación completa del misil con autopiloto en altura y etapa de guiado
 % Opción 1: Mostrar gráficas para el vuelo completo, con un objetivo en la
 % posición y velocidad deseadas.
-%res = simulation(params, PID, Kaz, 1500, 0/3.6);
+res = simulation(params, PID, Kaz, 1000, 0/3.6);
+res.miss_distance
 
 % Opción 2: Respuesta del autopiloto en aceleración ante una entrada
 % escalón con la magnitud especificada, tiempo en el que se aplica y
 % duración de la simulación.
-res = az_step_response(params, PID, Kaz, 20, 8.0, 10.0);
+%res = az_step_response(params, PID, Kaz, 50, 7.0, 10.0);
 
 figure;
 plot(res.y(:,1), -res.y(:,3));
@@ -157,10 +158,21 @@ ylabel("\alpha (\circ)");
 grid();
 
 figure;
+plot(res.t, vecnorm(res.y(:,4:6),2,2));
+title("Velocidad del misil");
+xlabel("Tiempo (s)");
+ylabel("V (m/s)");
+grid();
+
+figure;
 plot(res.t, res.dy(:,6) - res.y(:,4).*res.y(:,8));
+hold on;
+plot(res.t, res.sp);
+hold off;
 title("Aceleración");
 xlabel("Tiempo (s)");
 ylabel("a_z (m/{s^2})");
+legend(["a_z", "sp"]);
 grid();
 
 figure;
@@ -207,16 +219,16 @@ grid();
 %% Funciones
 % Función que calcula el valor de la función de coste con las ganancias
 % elegidas para la etapa de guiado. Devuelve la suma de los costes para una
-% posición inicial de 150 metros y velocidades iniciales de 0, 20 y 40
-% km/h.
+% posición inicial de 150, 500 y 2000 metros y velocidades iniciales de 0,
+% 20 y 40 km/h.
 function cost = guidance_optimizer(params, PID, Kaz)
     cost = 0;
     
-    % Optimizar para una posición inicial del objetivo a 150 metros es
-    % suficiente para obtener un autopiloto en aceleración que se comporte
-    % de forma óptima para todo el rango operativo (conclusión empírica).
+    % Optimizar para una posición inicial del objetivo de entre 150 a 2000
+    % metros para evitar que encuentre únicamente una solución local, pero
+    % que no sirva para todo el rango operativo del misil.
     
-    sp = [150];
+    sp = [150, 500, 2000];
     v = [0, 20/3.6, 40/3.6];
     
     for i=1:length(sp)

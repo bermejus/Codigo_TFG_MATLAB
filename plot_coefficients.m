@@ -77,4 +77,5 @@ function plot_coefficient(alpha, mach, coeff, title_str, ylabel_str)
     end
     
     legend(mach_str);
+    xlim([smoothed_alpha(1), smoothed_alpha(end)]);
 end

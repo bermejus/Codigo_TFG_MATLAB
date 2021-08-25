@@ -11,6 +11,7 @@
 % t: Vector que contiene los instantes de tiempo.
 % y: Vector que contiene cada estado del msisil simulado en su correspondiente instante de tiempo.
 % dy: Vector que contiene la salida de la función dynamics. Útil para graficar la aceleración.
+% sp: Vector que contiene los setpoints de aceleración comandados, útil para graficar aceleración.
 % RiseTime: Tiempo de subida ante la entrada escalón.
 % SettlingTime: Tiempo de establecimiento ante la entrada escalón.
 % Overshoot: Sobreimpulso ante la entrada escalón.
@@ -38,6 +39,7 @@ function res = az_step_response(params, Kh, Kaz, sp, t_trigger, t_end)
     res.y = zeros(1,17);
     res.y(:) = y';
     res.dy = dynamics(t, y, params)';
+    res.sp = 0.0;
     
     %% Autopiloto en altura
     altitude_pid = AltitudeAutopilot(Kh, deg2rad(20) * [-1,-1], deg2rad(20) * [1,1]);
@@ -49,7 +51,7 @@ function res = az_step_response(params, Kh, Kaz, sp, t_trigger, t_end)
     
     %% Comienzo de la simulación
     while t < tspan(2)
-        %% Etapa de guiado (en caso de que se haya activado)
+        %% Control de aceleración (en caso de que se haya activado)
         if t >= t_trigger
             guidance_activated = true;
         end
@@ -64,6 +66,9 @@ function res = az_step_response(params, Kh, Kaz, sp, t_trigger, t_end)
                 params.vanes_cmd(1) = 0;
             end
             params.deltas_cmd(1) = u_cmd(2);
+            
+            % Hasta que no se active el control de aceleración se almacena sp=0.
+            res.sp = [res.sp 0.0];
         else
             % Control de aceleración
             dy = dynamics(t, y, params);
@@ -78,6 +83,9 @@ function res = az_step_response(params, Kh, Kaz, sp, t_trigger, t_end)
             
             params.vanes_cmd(1) = u_tvc_cmd;
             params.deltas_cmd(1) = u_ae_cmd;
+            
+            % Almacenar el setpoint de entrada en el vector de salida.
+            res.sp = [res.sp sp];
         end
         
         %% Ejecutar la simulación para un paso de tiempo

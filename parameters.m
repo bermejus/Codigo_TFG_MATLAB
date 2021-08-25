@@ -76,7 +76,7 @@ function p = parameters()
     
     % Calcula los coeficientes aerodinámicos de los actuadores linealizando
     % en ángulo de ataque y deflexión de cada actuador.
-    first = find(aero{1}.alpha == 2);
+    first = find(aero{1}.alpha == 0);
     last = find(aero{1}.alpha == 10);
     
     % Cálculos para elevador.

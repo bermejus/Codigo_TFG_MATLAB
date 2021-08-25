@@ -88,7 +88,7 @@ function dy = dynamics(t, y, p)
                 p.b * (Cnb * beta + lat_adim * (Cnp * y(7) + Cnr * y(9)) + Cndr * p.deltas_cmd(2))];
     
     % Momento aerodinámico respecto al centro de masas en el instante 't'
-    Mae = Mae + (cg - p.x0) * [0.0; Fae(3); -Fae(2)];
+    Mae = Mae + (cg - p.x0) * [0.0; -Fae(3); Fae(2)];
     
     %% Contribución del peso del misil en ejes cuerpo
     forces = forces + Fae + qrot(qconj(y(10:13)), [0.0; 0.0; m*p.g]);

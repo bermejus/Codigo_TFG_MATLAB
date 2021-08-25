@@ -10,6 +10,7 @@
 % t: Vector que contiene los instantes de tiempo.
 % y: Vector que contiene cada estado del msisil simulado en su correspondiente instante de tiempo.
 % dy: Vector que contiene la salida de la función dynamics. Útil para graficar la aceleración.
+% sp: Vector que contiene los setpoints generados en la etapa de guiado, útil para graficar aceleración.
 % cost: Valor de la función de coste asociada a la simulación.
 function res = simulation(params, Kh, Kaz, x_0, v_0)
     %% Condiciones iniciales
@@ -20,7 +21,7 @@ function res = simulation(params, Kh, Kaz, x_0, v_0)
     y(10:13) = quat(deg2rad(18), [0; 1; 0]); % 18 grados de cabeceo
     
     %% Preparación de la simulación
-    tspan = [0, 20.0];
+    tspan = [0, 70.0];
     t = tspan(1);
     dt = 0.01; % Paso de tiempo, frecuencia de actualización 100Hz
     
@@ -29,6 +30,7 @@ function res = simulation(params, Kh, Kaz, x_0, v_0)
     res.y = zeros(1,17);
     res.y(:) = y';
     res.dy = dynamics(t, y, params)';
+    res.sp = 0.0;
     res.cost = 0;
     
     %% Autopiloto en altura
@@ -44,9 +46,9 @@ function res = simulation(params, Kh, Kaz, x_0, v_0)
     v_t = [v_0; 0; 0]; % m/s
     
     %% Diseño del criterio en altura para cambiar a la fase terminal de guiado
-    if x_0 <= 750
-        x = [150, 500, 750];
-        h = [10, 20, 35];
+    if x_0 <= 825
+        x = [150, 500, 750, 825];
+        h = [10, 20, 27.5, 40];
         h_lim = linear(x, h, x_0);
     else
         h_lim = Inf;
@@ -83,6 +85,9 @@ function res = simulation(params, Kh, Kaz, x_0, v_0)
                 params.vanes_cmd(1) = 0;
             end
             params.deltas_cmd(1) = u_cmd(2);
+            
+            % Hasta que no se active el guiado se almacena sp=0.
+            res.sp = [res.sp 0.0];
         else
             %% Control de aceleración
             sp = max(min(acc(3), sp_max), -10);
@@ -102,7 +107,10 @@ function res = simulation(params, Kh, Kaz, x_0, v_0)
             % Actualizar valor de la función de coste para optimizar el
             % rendimiento del autopiloto en aceleración, penalizar la
             % desviación del setpoint.
-            res.cost = res.cost + 0.002 * az_ae_pid.error^2 * dt;
+            res.cost = res.cost + 0.005 * az_ae_pid.error^2 * dt;
+            
+            % Almacenar el setpoint generado en el vector de salida.
+            res.sp = [res.sp sp];
         end
         
         %% Ejecutar la simulación para un paso de tiempo
