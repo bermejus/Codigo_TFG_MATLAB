@@ -48,7 +48,7 @@ function res = simulation(params, Kh, Kaz, x_0, v_0)
     %% Diseño del criterio en altura para cambiar a la fase terminal de guiado
     if x_0 <= 825
         x = [150, 500, 750, 825];
-        h = [10, 20, 27.5, 40];
+        h = [10, 20, 25, 40];
         h_lim = linear(x, h, x_0);
     else
         h_lim = Inf;

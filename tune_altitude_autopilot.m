@@ -69,7 +69,7 @@ function res = tune_altitude_autopilot(params, K, sp, print_snd_order_info)
         % Actualizar valor de la función de coste para optimizar el
         % rendimiento del autopiloto en altura, penalizar la desviación del
         % setpoint.
-        res.cost = res.cost + 10*pid.error^2*dt;
+        res.cost = res.cost + 50*pid.error^2*dt;
     end
     
     %% Cálculo de varios parámetros para entrada escalón, asumiendo que se aproxima a un sistema de segundo orden
@@ -99,7 +99,7 @@ function res = tune_altitude_autopilot(params, K, sp, print_snd_order_info)
     if isnan(info.RiseTime) || isnan(info.SettlingTime) || isnan(info.Overshoot)
         res.cost = res.cost + 30;
     else
-        res.cost = res.cost + info.RiseTime + info.SettlingTime + 100 * abs(res.damp - 0.7);
+        res.cost = res.cost + info.RiseTime + info.SettlingTime + max(0.0, info.Overshoot - 3.0); % + 100 * abs(res.damp - 0.7);
     end
     
     % Mostrar información calculada en consola

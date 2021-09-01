@@ -8,7 +8,7 @@ params = parameters();
 % altura (PID), cuya respuesta es la buscada.
 
 sp = -150.0; % setpoint (en metros, negativo por el sistema de coordenadas)
-ub = [0.0, 4.0, 0.1, 4.0]; % Límites superiores para ganancias
+ub = [0.0, 1.8, 0.1, 1.8]; % Límites superiores para ganancias
 lb = [-0.01, 0.0, 0.0, 0.0]; % Límites inferiores para ganancias
 
 % Ejecutar el algoritmo en paralelo para utilizar todos los núcleos del
@@ -18,7 +18,7 @@ options = optimoptions('surrogateopt','UseParallel',true);
 % Descomentar la línea siguiente para ejecutar el algoritmo, y comentar la
 % posterior para evitar que se sobrescriban las ganancias.
 %PID = surrogateopt(@(x) tune_altitude_autopilot(params, x, sp).cost, lb, ub, options);
-PID = [-0.00915369751880443,3.42525929980113,0.0278826828709323,3.36996825032110];
+PID = [-0.00486021630369243,1.30571708244770,0.0277657247170192,1.80000000000000];
 
 % Mostrar las ganancias en la consola.
 fprintf("TVC -> [Kp: %g], Fins -> [Kp: %g, Ki: %g, Kd: %g]\n", PID);
@@ -92,7 +92,7 @@ options = optimoptions('surrogateopt','UseParallel',true,'MaxFunctionEvaluations
 % Descomentar la línea siguiente para ejecutar el optimizador, y comentar
 % la posterior para evitar sobrescribir la solución.
 %Kaz = surrogateopt(@(x) guidance_optimizer(params, PID, x), lb, ub, options);
-Kaz = [-0.00900000000000,-0.128081303795713,0.0590475753833444,0,-0.0812543572015855,0.0403469532437463];
+Kaz = [-0.00954961505678904,-0.0934648264030066,0.0971967283420569,0,-0.0820097950653736,0.0581924493489259];
 
 % Mostrar las ganancias en la consola.
 fprintf("Kaz tvc: [%g, %g, %g]\n", Kaz(1:3));
@@ -120,7 +120,7 @@ fprintf("Error de alcance para objetivo a 2500m, 40 km/h: %g m\n", simulation(pa
 %% Simulación completa del misil con autopiloto en altura y etapa de guiado
 % Opción 1: Mostrar gráficas para el vuelo completo, con un objetivo en la
 % posición y velocidad deseadas.
-res = simulation(params, PID, Kaz, 1000, 0/3.6);
+res = simulation(params, PID, Kaz, 2500, 0/3.6);
 res.miss_distance
 
 % Opción 2: Respuesta del autopiloto en aceleración ante una entrada

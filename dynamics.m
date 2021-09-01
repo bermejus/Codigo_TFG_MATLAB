@@ -37,7 +37,7 @@ function dy = dynamics(t, y, p)
         phi = pi/4 + pi/2 * (i-1);
         thrust = [cos(vanes(i)); sin(phi)*sin(vanes(i)); -cos(phi)*sin(vanes(i))] * (T/4);
         forces = forces + thrust;
-        moments = moments + cross([cg - p.l; cos(phi)*p.d/2; sin(phi)*p.d/2], thrust);
+        moments = moments + cross([cg - p.l; cos(phi)*p.d/8; sin(phi)*p.d/8], thrust);
     end
     
     %% Cálculo de fuerzas y momentos aerodinámicos.
@@ -73,8 +73,8 @@ function dy = dynamics(t, y, p)
     Clda = linear(p.mach_lut, p.Clda, mach);
     
     qS = 0.5 * p.rho * V^2 * p.Sref;
-    lon_adim = 2*p.c/V;
-    lat_adim = 2*p.b/V;
+    lon_adim = p.c/(2*V);
+    lat_adim = p.b/(2*V);
     
     % Cálculo de fuerzas estacionarias y dinámicas
     Fae = -qS * [CA + CAq * lon_adim * y(8);
