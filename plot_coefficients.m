@@ -9,6 +9,7 @@ mach = aero{1}.mach;
 
 % Coeficientes aerodinámicos longitudinales
 plot_coefficient(alpha, mach, aero{1}.cn, "C_{N} frente a \alpha", "C_{N}");
+plot_coefficient(alpha, mach, aero{1}.cna, "C_{Na} frente a \alpha", "C_{Na}");
 plot_coefficient(alpha, mach, aero{1}.cnq, "C_{Nq} frente a \alpha", "C_{Nq}");
 plot_coefficient(alpha, mach, aero{1}.cm, "C_{m} frente a \alpha", "C_{m}");
 plot_coefficient(alpha, mach, aero{1}.cma, "C_{m\alpha} frente a \alpha", "C_{m\alpha}");

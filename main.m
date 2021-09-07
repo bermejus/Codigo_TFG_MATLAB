@@ -33,9 +33,10 @@ res = tune_altitude_autopilot(params, PID, sp, true);
 
 figure;
 plot(res.t, -res.y(:,3));
-title("Altura del misil");
+title("Respuesta del misil");
 xlabel("Tiempo (s)");
 ylabel("Altura (m)");
+xlim([res.t(1), res.t(end)]);
 grid();
 
 euler = euler_angles(res.y(:,10:13));
@@ -44,6 +45,7 @@ plot(res.t, rad2deg(euler(:,2)));
 title("Ángulo de cabeceo");
 xlabel("Tiempo (s)");
 ylabel("\theta (\circ)");
+xlim([res.t(1), res.t(end)]);
 grid();
 
 figure;
@@ -51,6 +53,7 @@ plot(res.t, rad2deg(atan2(res.y(:,6), res.y(:,4))));
 title("Ángulo de ataque");
 xlabel("Tiempo (s)");
 ylabel("\alpha (\circ)");
+xlim([res.t(1), res.t(end)]);
 grid();
 
 figure;
@@ -61,7 +64,8 @@ hold off;
 title("Respuesta de los actuadores");
 xlabel("Tiempo (s)");
 ylabel("Elevador (\circ)");
-legend(["{\delta}_{tvc}", "{\delta}_{ae}"]);
+legend(["{\delta}_{e}^t", "{\delta}_{e}^{ae}"]);
+xlim([res.t(1), res.t(end)]);
 grid();
 
 figure;
@@ -69,6 +73,7 @@ plot(res.t, vecnorm(res.y(:,4:6),2,2));
 title("Velocidad del misil");
 xlabel("Tiempo (s)");
 ylabel("V (m/s)");
+xlim([res.t(1), res.t(end)]);
 grid();
 
 figure;
@@ -76,6 +81,7 @@ plot(res.y(:,1), -res.y(:,3));
 title("Altura frente a alcance");
 xlabel("Alcance (m)");
 ylabel("Altura (m)");
+xlim([res.y(1,1), res.y(end,1)]);
 grid();
 
 %% Cálculo de ganancias para autopiloto en aceleración
@@ -101,38 +107,49 @@ fprintf("Kaz ae: [%g, %g, %g]\n", Kaz(4:6));
 % Diferentes simulaciones que muestran en consola el error de alcance para
 % diferentes posiciones y velocidades iniciales del objetivo.
 fprintf("Error de alcance para objetivo a 150m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 150, 0).miss_distance);
+fprintf("Error de alcance para objetivo a 150m, 20 km/h: %g m\n", simulation(params, PID, Kaz, 150, 20/3.6).miss_distance);
 fprintf("Error de alcance para objetivo a 150m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 150, 40/3.6).miss_distance);
 fprintf("Error de alcance para objetivo a 250m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 250, 0).miss_distance);
+fprintf("Error de alcance para objetivo a 250m, 20 km/h: %g m\n", simulation(params, PID, Kaz, 250, 20/3.6).miss_distance);
 fprintf("Error de alcance para objetivo a 250m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 250, 40/3.6).miss_distance);
 fprintf("Error de alcance para objetivo a 500m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 500, 0).miss_distance);
+fprintf("Error de alcance para objetivo a 500m, 20 km/h: %g m\n", simulation(params, PID, Kaz, 500, 20/3.6).miss_distance);
 fprintf("Error de alcance para objetivo a 500m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 500, 40/3.6).miss_distance);
 fprintf("Error de alcance para objetivo a 750m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 750, 0).miss_distance);
+fprintf("Error de alcance para objetivo a 750m, 20 km/h: %g m\n", simulation(params, PID, Kaz, 750, 20/3.6).miss_distance);
 fprintf("Error de alcance para objetivo a 750m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 750, 40/3.6).miss_distance);
 fprintf("Error de alcance para objetivo a 1000m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 1000, 0).miss_distance);
+fprintf("Error de alcance para objetivo a 1000m, 20 km/h: %g m\n", simulation(params, PID, Kaz, 1000, 20/3.6).miss_distance);
 fprintf("Error de alcance para objetivo a 1000m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 1000, 40/3.6).miss_distance);
 fprintf("Error de alcance para objetivo a 1500m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 1500, 0).miss_distance);
+fprintf("Error de alcance para objetivo a 1500m, 20 km/h: %g m\n", simulation(params, PID, Kaz, 1500, 20/3.6).miss_distance);
 fprintf("Error de alcance para objetivo a 1500m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 1500, 40/3.6).miss_distance);
 fprintf("Error de alcance para objetivo a 2000m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 2000, 0).miss_distance);
+fprintf("Error de alcance para objetivo a 2000m, 20 km/h: %g m\n", simulation(params, PID, Kaz, 2000, 20/3.6).miss_distance);
 fprintf("Error de alcance para objetivo a 2000m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 2000, 40/3.6).miss_distance);
 fprintf("Error de alcance para objetivo a 2500m, 0 km/h: %g m\n", simulation(params, PID, Kaz, 2500, 0).miss_distance);
+fprintf("Error de alcance para objetivo a 2500m, 20 km/h: %g m\n", simulation(params, PID, Kaz, 2500, 20/3.6).miss_distance);
 fprintf("Error de alcance para objetivo a 2500m, 40 km/h: %g m\n", simulation(params, PID, Kaz, 2500, 40/3.6).miss_distance);
 
 %% Simulación completa del misil con autopiloto en altura y etapa de guiado
 % Opción 1: Mostrar gráficas para el vuelo completo, con un objetivo en la
 % posición y velocidad deseadas.
-res = simulation(params, PID, Kaz, 2500, 0/3.6);
-res.miss_distance
+t_trigger = 0.0;
+%res = simulation(params, PID, Kaz, 1500, 0/3.6);
+%res.miss_distance
 
 % Opción 2: Respuesta del autopiloto en aceleración ante una entrada
 % escalón con la magnitud especificada, tiempo en el que se aplica y
 % duración de la simulación.
-%res = az_step_response(params, PID, Kaz, 50, 7.0, 10.0);
+t_trigger = 7;
+res = az_step_response(params, PID, Kaz, 50, t_trigger, 8.0);
 
 figure;
 plot(res.y(:,1), -res.y(:,3));
 title("Altura frente a alcance");
 xlabel("Alcance (m)");
 ylabel("Altura (m)");
+xlim([res.y(1,1), res.y(end,1)]);
 grid();
 
 figure;
@@ -140,6 +157,7 @@ plot(res.t, -res.y(:,3));
 title("Altura del misil");
 xlabel("Tiempo (s)");
 ylabel("Altura (m)");
+xlim([t_trigger, res.t(end)]);
 grid();
 
 euler = euler_angles(res.y(:,10:13));
@@ -148,6 +166,7 @@ plot(res.t, rad2deg(euler(:,2)));
 title("Ángulo de cabeceo");
 xlabel("Tiempo (s)");
 ylabel("\theta (\circ)");
+xlim([t_trigger, res.t(end)]);
 grid();
 
 figure;
@@ -155,6 +174,7 @@ plot(res.t, rad2deg(atan2(res.y(:,6), res.y(:,4))));
 title("Ángulo de ataque");
 xlabel("Tiempo (s)");
 ylabel("\alpha (\circ)");
+xlim([t_trigger, res.t(end)]);
 grid();
 
 figure;
@@ -162,6 +182,7 @@ plot(res.t, vecnorm(res.y(:,4:6),2,2));
 title("Velocidad del misil");
 xlabel("Tiempo (s)");
 ylabel("V (m/s)");
+xlim([t_trigger, res.t(end)]);
 grid();
 
 figure;
@@ -172,7 +193,8 @@ hold off;
 title("Aceleración");
 xlabel("Tiempo (s)");
 ylabel("a_z (m/{s^2})");
-legend(["a_z", "sp"]);
+legend(["a_z", "a_{z_{cmd}}"]);
+xlim([t_trigger, res.t(end)]);
 grid();
 
 figure;
@@ -183,7 +205,8 @@ hold off;
 title("Respuesta de los actuadores");
 xlabel("Tiempo (s)");
 ylabel("Elevador (\circ)");
-legend(["{\delta}_{tvc}", "{\delta}_{ae}"]);
+legend(["{\delta}_{e}^{t}", "{\delta}_{e}^{ae}"]);
+xlim([t_trigger, res.t(end)]);
 grid();
 
 %% Graficar la persecución del objetivo para distintas posiciones iniciales
@@ -201,19 +224,21 @@ res7 = simulation(params, PID, Kaz, 2000, 0/3.6);
 res8 = simulation(params, PID, Kaz, 2500, 0/3.6);
 
 figure;
-plot(res1.y(:,1), -res1.y(:,3));
+plot(res1.y(:,1), -res1.y(:,3), "Color","b");
 hold on;
-plot(res2.y(:,1), -res2.y(:,3));
-plot(res3.y(:,1), -res3.y(:,3));
-plot(res4.y(:,1), -res4.y(:,3));
-plot(res5.y(:,1), -res5.y(:,3));
-plot(res6.y(:,1), -res6.y(:,3));
-plot(res7.y(:,1), -res7.y(:,3));
-plot(res8.y(:,1), -res8.y(:,3));
+plot(res2.y(:,1), -res2.y(:,3), "Color","b");
+plot(res3.y(:,1), -res3.y(:,3), "Color","b");
+plot(res4.y(:,1), -res4.y(:,3), "Color","b");
+plot(res5.y(:,1), -res5.y(:,3), "Color","b");
+plot(res6.y(:,1), -res6.y(:,3), "Color","b");
+plot(res7.y(:,1), -res7.y(:,3), "Color","b");
+plot(res8.y(:,1), -res8.y(:,3), "Color","b");
 hold off;
 title("Persecución del objetivo");
 xlabel("Alcance (m)");
 ylabel("Altura (m)");
+xlim([res8.y(1,1), res8.y(end,1)]);
+ylim([0, 160]);
 grid();
 
 %% Funciones
